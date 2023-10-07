@@ -3,6 +3,8 @@ import { API_KEY } from "./key.js";
 const API_CALL_GEOCODE = "http://api.openweathermap.org/geo/1.0/direct?q="
 const API_CALL_WEATHER = "https://api.openweathermap.org/data/2.5/weather?";
 const API_CALL_FORECAST =  "https://api.openweathermap.org/data/2.5/forecast?";
+const API_CALL_ICON = "https://openweathermap.org/img/wn/";
+
 const FORECAST_COUNT = 5;
 var units = "imperial"; // Allow user to change?
 
@@ -36,19 +38,73 @@ async function getWeather(cityName) {
     let coordinates = await getCityLatLon(cityName);
     let lat = coordinates.lat;
     let lon = coordinates.lon;
-    console.log("lat, lon:", lat, lon)
 
     if (!lat || !lon) return; // Guard check
 
     let weatherToday = await fetchWeather(lat, lon);
-    // console.log("weatherToday:", weatherToday);
+    weatherToday["fullName"] = cityName
 
     if (!weatherToday) return; // Guard check
 
     let weatherForecast = await fetchForecast(lat, lon);
     // console.log("weatherForecast:", weatherForecast)
+
+    displayWeatherToday(weatherToday);
+    // displayWeatherForecast(weatherForecast);
 }
 
+/**
+ * Pull out the wanted info from the api json
+ * @param {Object} weatherJson JSON containing the results from Open Weather
+ * @returns Object containing the info to show the user
+ */
+function getWeatherInfo(weatherJson) {
+    // console.log(weatherJson);
+
+    return {
+        city: weatherJson.fullName,
+        timestamp: (weatherJson.dt) * 1000, // Add miliseconds
+        icon: weatherJson.weather[0].icon,
+        temperature: Math.ceil(weatherJson.main.temp),
+        wind: weatherJson.wind.speed,
+        humidity: weatherJson.main.humidity
+    }
+}
+
+
+function displayWeatherToday(weatherToday) {
+    let weatherInfo = getWeatherInfo(weatherToday);
+    let date = dayjs(weatherInfo.timestamp).format("MMM DD, YYYY")
+    $("#city-info").html("")
+
+    var card = $('<div>').addClass("card p-2 mt-2");
+
+    var cardHeader = $(`<h2>`).addClass("card-header");
+    cardHeader.html(`${weatherInfo.city} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
+
+    var cardBody = $("<div>").addClass("card-body");
+    var temperature = $(`<p>`).addClass("card-text");
+    temperature.html("Temperature: <strong>" + weatherInfo.temperature + "&deg</strong>");
+
+    var wind = $(`<p>`).addClass("card-text");
+    wind.html("Wind: <strong>" + weatherInfo.wind + (units === "imperial" ? " MPH" : " KM/H") + "</strong>")
+
+    var humidity = $(`<p>`).addClass("card-text");
+    humidity.html("Humidity: <strong>" + weatherInfo.humidity + "%</strong>");
+
+    cardBody.append(temperature, wind, humidity);
+    card.append(cardHeader, cardBody);
+    $("#city-info").append(card);
+}
+
+
+function displayWeatherForecast(weatherForecast) {
+    
+    for (let i = 0; i < FORECAST_COUNT; i++) {
+        let weatherInfo = getWeatherInfo(weatherForecast);
+
+    }
+}
 
 
 /**
@@ -58,19 +114,20 @@ async function getWeather(cityName) {
  */
 async function getCityLatLon(cityName) {
     let requestURL = buildGeocodeUrl(cityName);
-    console.log("buildGeocodeUrl:", requestURL)
+    // console.log("buildGeocodeUrl:", requestURL)
+
     let options = {
         method: "GET",
         mode: "cors",
-        cache: "force-cache", // Force cache for faster response
+        cache: "default",
         credentials: "same-origin",
     }
 
     let response = await fetch(requestURL, options)
-    console.log("response:", response)
+    // console.log("response:", response)
 
     let data = await response.json();
-    console.log("data:", data)
+    // console.log("data:", data)
 
     if (!response.ok || data.length <= 0) {
         alert("Couldn't get city coordinates.\n\nPlease try including either just \"city name\" or \"city name, state (USA only), country code\"")
@@ -99,7 +156,7 @@ async function fetchWeather(lat, lon) {
     let options = {
         method: "GET",
         mode: "cors",
-        cache: "force-cache", // Force cache for faster response
+        cache: "reload", // We want the most current weather data
         credentials: "same-origin",
     }
 
@@ -127,7 +184,7 @@ async function fetchForecast(lat, lon) {
     let options = {
         method: "GET",
         mode: "cors",
-        cache: "force-cache", // Force cache for faster response
+        cache: "reload", // We want the most current weather data
         credentials: "same-origin",
     }
 
@@ -141,6 +198,8 @@ async function fetchForecast(lat, lon) {
 
     return data;
 }
+
+
 
 /**
  * Creates the url for fetch
@@ -172,4 +231,8 @@ function buildWeatherUrl(lat, lon) {
  */
 function buildForecastUrl(lat, lon) {
     return `${API_CALL_FORECAST}lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=${units}&cnt=${FORECAST_COUNT}`;
+}
+
+function buildWeatherIcon(iconName) {
+    return `${API_CALL_ICON}${iconName}.png`
 }

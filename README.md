@@ -4,6 +4,10 @@
 
 Link to deployment is here: [https://nathangero.github.io/weather-dashboard/](https://nathangero.github.io/weather-dashboard/)
 
+## Learning Points
+* ```JQuery.html()``` and ```JQuery.text()``` will replace each other. Meaning only one can be used at a time.
+* ```<img src="url-to-photo.png">``` is how to show pictures from the internet
+
 ## Credits
 
 ### Coding Resources
@@ -18,6 +22,8 @@ Link to deployment is here: [https://nathangero.github.io/weather-dashboard/](ht
 
 [return multiple values in func](https://stackoverflow.com/a/2917186)
 
+[degree symbol](https://www.w3schools.com/charsets/ref_utf_latin1_supplement.asp)
+
 ### Openweather API docs
 
 [Geocoding API](https://openweathermap.org/api/geocoding-api)
@@ -25,3 +31,5 @@ Link to deployment is here: [https://nathangero.github.io/weather-dashboard/](ht
 [v2.5 weather docs](https://openweathermap.org/current)
 
 [5-day forecast docs](https://openweathermap.org/forecast5)
+
+[Weather icons](https://openweathermap.org/weather-conditions)
