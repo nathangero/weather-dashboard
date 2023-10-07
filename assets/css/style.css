@@ -1,0 +1,10 @@
+:root {
+  --header-bg-color: lightblue;
+
+  --text-white: white;
+}
+
+header {
+    background-color: var(--header-bg-color);
+    color: var(--text-white);
+}
