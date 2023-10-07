@@ -66,7 +66,11 @@ function getWeatherInfo(weatherJson) {
     }
 }
 
-
+/**
+ * Parse the JSON containing current date's weather and show it to the user.
+ * Every time this runs, it removes the current showing weather if there is one
+ * @param {Object} weatherToday JSON containing current date's weather
+ */
 function displayWeatherToday(weatherToday) {
     let weatherInfo = getWeatherInfo(weatherToday);
     let date = dayjs(weatherInfo.timestamp).format("MMM DD, YYYY")
@@ -92,7 +96,11 @@ function displayWeatherToday(weatherToday) {
     $("#city-info").append(card);
 }
 
-
+/**
+ * Parse the JSON containing current date's weather and show it to the user.
+ * Every time this runs, it removes the current showing weather if there is one
+ * @param {Object} weatherForecast JSON containing current date's forecast
+ */
 function displayWeatherForecast(weatherForecast) {
     
     for (let i = 0; i < FORECAST_COUNT; i++) {
