@@ -1,9 +1,4 @@
-import { API_KEY } from "./key.js";
-
-const API_CALL_GEOCODE = "http://api.openweathermap.org/geo/1.0/direct?q="
-const API_CALL_WEATHER = "https://api.openweathermap.org/data/2.5/weather?";
-const API_CALL_FORECAST =  "https://api.openweathermap.org/data/2.5/forecast?";
-const API_CALL_ICON = "https://openweathermap.org/img/wn/";
+import { API_KEY, API_CALL_FORECAST, API_CALL_GEOCODE, API_CALL_ICON, API_CALL_WEATHER } from "./api.js";
 
 const FORECAST_COUNT = 5;
 var units = "imperial"; // Allow user to change?
