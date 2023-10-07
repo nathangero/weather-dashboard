@@ -1,6 +1,6 @@
 import { API_KEY, API_CALL_FORECAST, API_CALL_GEOCODE, API_CALL_ICON, API_CALL_WEATHER } from "./api.js";
 
-const FORECAST_COUNT = 5;
+const FORECAST_COUNT = 6; // First weather is the current day
 var units = "imperial"; // Allow user to change?
 
 $(function() {
@@ -42,10 +42,9 @@ async function getWeather(cityName) {
     if (!weatherToday) return; // Guard check
 
     let weatherForecast = await fetchForecast(lat, lon);
-    // console.log("weatherForecast:", weatherForecast)
 
     displayWeatherToday(weatherToday);
-    // displayWeatherForecast(weatherForecast);
+    displayWeatherForecast(weatherForecast, cityName);
 }
 
 /**
@@ -102,11 +101,42 @@ function displayWeatherToday(weatherToday) {
  * @param {Object} weatherForecast JSON containing current date's forecast
  */
 function displayWeatherForecast(weatherForecast) {
-    
-    for (let i = 0; i < FORECAST_COUNT; i++) {
-        let weatherInfo = getWeatherInfo(weatherForecast);
+    console.log("weatherForecast:", weatherForecast);
 
+    var forecast = $('<div id="forecast" class="d-flex flex-column">')
+    var cardContainer = $('<div class="d-flex text-start">')
+
+    for (let i = 1; i < FORECAST_COUNT; i++) { // Skip first weather because it's current date
+        let weatherInfo = getWeatherInfo(weatherForecast.list[i]);
+        // console.log("weatherInfo", i, ":", weatherInfo)
+        let date = dayjs(weatherInfo.timestamp).format("ddd DD")
+        console.log("weatherInfo.timestamp:", weatherInfo.timestamp);
+        console.log("weatherInfo.forma:", dayjs(weatherInfo.timestamp).format("ddd MMM DD, YYYY HH:mm:ss"));
+
+        var card = $('<div>').addClass("card m-2 custom-card");
+        var cardHeader = $(`<h2>`).addClass("card-header");
+        cardHeader.html(date);
+    
+        var cardBody = $("<div>").addClass("card-body");
+        var weatherIcon = $(`<img src=${buildWeatherIcon(weatherInfo.icon)}>`);
+        weatherIcon.addClass("card-text text-center");
+
+        var temperature = $(`<p>`).addClass("card-text");
+        temperature.html("Temperature: <strong>" + weatherInfo.temperature + "&deg</strong>");
+    
+        var wind = $(`<p>`).addClass("card-text");
+        wind.html("Wind: <strong>" + weatherInfo.wind + (units === "imperial" ? " MPH" : " KM/H") + "</strong>")
+    
+        var humidity = $(`<p>`).addClass("card-text");
+        humidity.html("Humidity: <strong>" + weatherInfo.humidity + "%</strong>");
+    
+        cardBody.append(weatherIcon, temperature, wind, humidity);
+        card.append(cardHeader, cardBody);
+        cardContainer.append(card);
     }
+    
+    forecast.append(cardContainer);
+    $("#city-info").append(forecast);
 }
 
 
@@ -182,7 +212,7 @@ async function fetchWeather(lat, lon) {
  */
 async function fetchForecast(lat, lon) {
     let requestURL = buildForecastUrl(lat, lon);
-    // console.log("buildForecastUrl:", requestURL);
+    console.log("buildForecastUrl:", requestURL);
 
     let options = {
         method: "GET",
