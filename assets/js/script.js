@@ -1,5 +1,6 @@
 import { API_KEY, API_CALL_FORECAST, API_CALL_GEOCODE, API_CALL_ICON, API_CALL_WEATHER } from "./api.js";
 
+const STORAGE_SAVED_CITIES = "savedCities";
 var savedCities = new Set();
 var units = "imperial"; // Allow user to change?
 
@@ -16,7 +17,7 @@ function handleSearch(event) {
     let inputEl = $("#city-name");
     let cityName = inputEl.val();
 
-    if (cityName) {
+    if (cityName.toLowerCase()) {
         getWeather(cityName);
     } else {
         alert("Please enter a city name");
@@ -57,6 +58,10 @@ async function getWeather(cityName) {
 
     let weatherForecast = await fetchForecast(lat, lon);
 
+    if (!weatherForecast) return; // Guard check
+
+    // If all checks pass, then show the user the weather
+
     // Prevent duplicates
     if (!savedCities.has(cityName)) {
         displaySearchedCity(cityName);
@@ -82,8 +87,9 @@ function displaySearchedCity(cityName) {
     item.append(city);
     searchHistory.append(item);
     
-    savedCities.add(cityName);
-    console.log(savedCities)
+    // Save in all lowercase to make checking easier
+    savedCities.add(cityName.toLowerCase());
+    // localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(savedCities))
 }
 
 
@@ -267,7 +273,7 @@ async function fetchWeather(lat, lon) {
  */
 async function fetchForecast(lat, lon) {
     let requestURL = buildForecastUrl(lat, lon);
-    console.log("buildForecastUrl:", requestURL);
+    // console.log("buildForecastUrl:", requestURL);
 
     let options = {
         method: "GET",
