@@ -24,11 +24,12 @@ function handleSearch(event) {
 
 function getWeather(cityName) {
     let requestURL = buildRequestUrl(cityName);
-    console.log(buildRequestUrl(cityName));
+    // console.log(buildRequestUrl(cityName));
 
     let options = {
         method: "GET",
         mode: "cors",
+        cache: "force-cache", // Force cache for faster response
         credentials: "same-origin",
     }
 
@@ -42,7 +43,8 @@ function getWeather(cityName) {
         }
     }).then((data) => {
         let weatherData = data;
-        // console.log(weatherData);
+
+        console.log(weatherData);
     })
 }
 
