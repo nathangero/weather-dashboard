@@ -37,15 +37,13 @@ async function getWeather(cityName) {
     if (!lat || !lon) return; // Guard check
 
     let weatherToday = await fetchWeather(lat, lon);
-    weatherToday["fullName"] = cityName
 
     if (!weatherToday) return; // Guard check
 
     let weatherForecast = await fetchForecast(lat, lon);
-    // console.log("weatherForecast:", weatherForecast)
 
-    displayWeatherToday(weatherToday);
-    // displayWeatherForecast(weatherForecast);
+    displayWeatherToday(weatherToday, cityName);
+    displayWeatherForecast(weatherForecast);
 }
 
 /**
@@ -54,14 +52,11 @@ async function getWeather(cityName) {
  * @returns Object containing the info to show the user
  */
 function getWeatherInfo(weatherJson) {
-    // console.log(weatherJson);
-
     return {
-        city: weatherJson.fullName,
         timestamp: (weatherJson.dt) * 1000, // Add miliseconds
         icon: weatherJson.weather[0].icon,
-        temperature: Math.ceil(weatherJson.main.temp),
-        wind: weatherJson.wind.speed,
+        temperature: Math.round(weatherJson.main.temp),
+        wind: Math.round(weatherJson.wind.speed),
         humidity: weatherJson.main.humidity
     }
 }
@@ -71,19 +66,19 @@ function getWeatherInfo(weatherJson) {
  * Every time this runs, it removes the current showing weather if there is one
  * @param {Object} weatherToday JSON containing current date's weather
  */
-function displayWeatherToday(weatherToday) {
+function displayWeatherToday(weatherToday, cityName) {
     let weatherInfo = getWeatherInfo(weatherToday);
-    let date = dayjs(weatherInfo.timestamp).format("MMM DD, YYYY")
+    let date = dayjs(weatherInfo.timestamp).format("ddd MMM DD, YYYY")
     $("#city-info").html("")
 
     var card = $('<div>').addClass("card p-2 mt-2");
 
     var cardHeader = $(`<h2>`).addClass("card-header");
-    cardHeader.html(`${weatherInfo.city} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
+    cardHeader.html(`${cityName} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
 
     var cardBody = $("<div>").addClass("card-body");
     var temperature = $(`<p>`).addClass("card-text");
-    temperature.html("Temperature: <strong>" + weatherInfo.temperature + "&deg</strong>");
+    temperature.html("Temperature: <strong>" + weatherInfo.temperature + "&deg" + (units === "imperial" ? "F" : "C") + "</strong>");
 
     var wind = $(`<p>`).addClass("card-text");
     wind.html("Wind: <strong>" + weatherInfo.wind + (units === "imperial" ? " MPH" : " KM/H") + "</strong>")
@@ -102,11 +97,62 @@ function displayWeatherToday(weatherToday) {
  * @param {Object} weatherForecast JSON containing current date's forecast
  */
 function displayWeatherForecast(weatherForecast) {
-    
-    for (let i = 0; i < FORECAST_COUNT; i++) {
-        let weatherInfo = getWeatherInfo(weatherForecast);
+    // console.log("weatherForecast:", weatherForecast);
+    const PEAK_TEMP_HOUR_MIN = 13;
+    const PEAK_TEMP_HOUR_MAX = 16;
 
+    var dateTracker = dayjs().format("DD");
+    console.log("dateTracker:", dateTracker);
+
+    var forecast = $('<div id="forecast" class="d-flex flex-column">')
+    var h3El = $("<br><h3>5-Day Forecast:</h3>")
+    forecast.append(h3El);
+
+    var cardContainer = $('<div class="d-flex text-start">')
+
+    console.log("weatherForecast.list.length:", weatherForecast.list.length)
+    for (let i = 0; i < weatherForecast.list.length; i++) { // Skip first weather because it's current date
+        let weatherInfo = getWeatherInfo(weatherForecast.list[i]);
+        let dayObj = dayjs(weatherInfo.timestamp);
+        let weatherDate = dayObj.format("DD");
+        let hour = parseInt(dayObj.format("HH"));
+
+        // Skip iteration until it's the next day
+        if (dateTracker === weatherDate) {
+            continue
+        }
+
+        if (hour <= PEAK_TEMP_HOUR_MAX && hour >= PEAK_TEMP_HOUR_MIN) {
+            console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
+
+            var card = $('<div>').addClass("card m-2 custom-card");
+            var cardHeader = $(`<h2>`).addClass("card-header");
+            cardHeader.html(dayObj.format("ddd DD"));
+        
+            var cardBody = $("<div>").addClass("card-body");
+            var weatherIcon = $(`<img src=${buildWeatherIcon(weatherInfo.icon)}>`);
+            weatherIcon.addClass("card-text pt-0");
+    
+            var temperature = $(`<p>`).addClass("card-text");
+            temperature.html("Temp: <strong>" + weatherInfo.temperature + "&deg" + (units === "imperial" ? "F" : "C") + "</strong>");
+        
+            var wind = $(`<p>`).addClass("card-text");
+            wind.html("Wind: <strong>" + weatherInfo.wind + (units === "imperial" ? " MPH" : " M/S") + "</strong>")
+        
+            var humidity = $(`<p>`).addClass("card-text");
+            humidity.html("Humidity: <strong>" + weatherInfo.humidity + "%</strong>");
+        
+            cardBody.append(weatherIcon, temperature, wind, humidity);
+            card.append(cardHeader, cardBody);
+            cardContainer.append(card);
+
+            // Update the tracker so we don't get duplicates of a day
+            dateTracker = weatherDate;
+        }
     }
+    
+    forecast.append(cardContainer);
+    $("#city-info").append(forecast);
 }
 
 
@@ -182,7 +228,7 @@ async function fetchWeather(lat, lon) {
  */
 async function fetchForecast(lat, lon) {
     let requestURL = buildForecastUrl(lat, lon);
-    // console.log("buildForecastUrl:", requestURL);
+    console.log("buildForecastUrl:", requestURL);
 
     let options = {
         method: "GET",
@@ -233,7 +279,7 @@ function buildWeatherUrl(lat, lon) {
  * @returns String containing the api call
  */
 function buildForecastUrl(lat, lon) {
-    return `${API_CALL_FORECAST}lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=${units}&cnt=${FORECAST_COUNT}`;
+    return `${API_CALL_FORECAST}lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=${units}`;
 }
 
 function buildWeatherIcon(iconName) {
