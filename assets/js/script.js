@@ -1,11 +1,12 @@
 import { API_KEY, API_CALL_FORECAST, API_CALL_GEOCODE, API_CALL_ICON, API_CALL_WEATHER } from "./api.js";
 
-const FORECAST_COUNT = 5;
+var savedCities = new Set();
 var units = "imperial"; // Allow user to change?
 
 $(function() {
     $("#button-search").on("click", handleSearch);
 });
+
 
 
 function handleSearch(event) {
@@ -22,6 +23,20 @@ function handleSearch(event) {
     }
 }
 
+
+function handleHistorySearch(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    let element = $(event.target);
+    let cityName = element.text();
+
+    if (cityName) {
+        getWeather(cityName);
+    } else {
+        alert("Couldn't load from history");
+    }
+}
 
 
 /**
@@ -42,9 +57,35 @@ async function getWeather(cityName) {
 
     let weatherForecast = await fetchForecast(lat, lon);
 
+    // Prevent duplicates
+    if (!savedCities.has(cityName)) {
+        displaySearchedCity(cityName);
+    }
+    
     displayWeatherToday(weatherToday, cityName);
     displayWeatherForecast(weatherForecast);
+
+    $("#city-name").val(""); // Delete input value after all weather has loaded
 }
+
+function displaySearchedCity(cityName) {
+    var searchHistory = $("#search-history");
+
+    var item = $("<li>")
+    item.addClass("card w-75 bg-secondary p-1 mb-3")
+
+    var city = $("<button>");
+    city.addClass("btn btn-secondary text-capitalize")
+    city.text(cityName);
+    city.on("click", handleHistorySearch)
+
+    item.append(city);
+    searchHistory.append(item);
+    
+    savedCities.add(cityName);
+    console.log(savedCities)
+}
+
 
 /**
  * Pull out the wanted info from the api json
@@ -73,7 +114,7 @@ function displayWeatherToday(weatherToday, cityName) {
 
     var card = $('<div>').addClass("card p-2 mt-2");
 
-    var cardHeader = $(`<h2>`).addClass("card-header");
+    var cardHeader = $(`<h2>`).addClass("card-header text-capitalize");
     cardHeader.html(`${cityName} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
 
     var cardBody = $("<div>").addClass("card-body");
@@ -102,7 +143,6 @@ function displayWeatherForecast(weatherForecast) {
     const PEAK_TEMP_HOUR_MAX = 16;
 
     var dateTracker = dayjs().format("DD");
-    console.log("dateTracker:", dateTracker);
 
     var forecast = $('<div id="forecast" class="d-flex flex-column">')
     var h3El = $("<br><h3>5-Day Forecast:</h3>")
@@ -110,7 +150,6 @@ function displayWeatherForecast(weatherForecast) {
 
     var cardContainer = $('<div class="d-flex text-start">')
 
-    console.log("weatherForecast.list.length:", weatherForecast.list.length)
     for (let i = 0; i < weatherForecast.list.length; i++) { // Skip first weather because it's current date
         let weatherInfo = getWeatherInfo(weatherForecast.list[i]);
         let dayObj = dayjs(weatherInfo.timestamp);
@@ -123,7 +162,7 @@ function displayWeatherForecast(weatherForecast) {
         }
 
         if (hour <= PEAK_TEMP_HOUR_MAX && hour >= PEAK_TEMP_HOUR_MIN) {
-            console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
+            // console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
 
             var card = $('<div>').addClass("card m-2 custom-card");
             var cardHeader = $(`<h2>`).addClass("card-header");

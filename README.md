@@ -24,6 +24,8 @@ Link to deployment is here: [https://nathangero.github.io/weather-dashboard/](ht
 
 [degree symbol](https://www.w3schools.com/charsets/ref_utf_latin1_supplement.asp)
 
+[Set() docs](https://www.w3schools.com/js/js_object_sets.asp)
+
 ### Openweather API docs
 
 [Geocoding API](https://openweathermap.org/api/geocoding-api)
