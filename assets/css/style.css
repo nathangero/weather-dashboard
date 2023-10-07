@@ -1,0 +1,29 @@
+:root {
+  --header-bg-color: lightblue;
+
+  --text-white: white;
+}
+
+header {
+  background-color: var(--header-bg-color);
+  color: var(--text-white);
+}
+
+ul {
+  list-style-type: none;
+}
+
+
+.container-search {
+  background-color: darkorchid;
+}
+
+.container-weather {
+  background-color: red;
+}
+
+
+.custom-card {
+  width: 20%;
+  height: auto;
+}
