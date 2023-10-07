@@ -9,9 +9,13 @@ header {
   color: var(--text-white);
 }
 
+ul {
+  list-style-type: none;
+}
+
 
 .container-search {
-  background-color: purple;
+  background-color: darkorchid;
 }
 
 .container-weather {
