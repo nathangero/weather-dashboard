@@ -11,7 +11,7 @@
 
   <title>Weather Dashboard</title>
 </head>
-<body>
+<body class="vh-100 custom-body">
   <header class="p-3">
     <h1>Weather Dashboard</h1>
   </header>
@@ -19,7 +19,7 @@
   <main>
     <section class="d-flex">
       <div class="d-flex flex-column col-3 pt-2 container-search">
-        <h2>Search for a City:</h2>
+        <h2 class="text-center">Search for a City:</h2>
         <form class="d-flex flex-column align-items-center">
           <input id="city-name" class="form-control w-75 p-2" placeholder="City">
           <button id="button-search" class="btn btn-primary w-75 mx-2 mt-3">Search</button>
@@ -27,67 +27,10 @@
 
         <hr class="m-3">
 
-        <ul id="search-history" class="d-flex flex-column align-items-center p-0">
-          <!-- <li class="card w-75 text-center bg-secondary text-light p-1">hello</li> -->
-        </ul>
+        <ul id="search-history" class="d-flex flex-column align-items-center p-0"></ul>
       </div>
 
-      <div id="city-info" class="d-flex flex-column col-9 px-3 container-weather">
-        <div class="card p-2 mt-2">
-          <h2>City Name (current date) <img src='https://openweathermap.org/img/wn/01n.png'></h2>
-          <p>temp</p>
-          <p>wind</p>
-          <p>humidity</p>
-        </div>
-        
-        <br>
-
-        <div id="forecast" class="d-flex flex-column">
-          <h3>5-Day Forecast:</h3>
-          
-          <div class="d-flex text-start">
-            <div class="card m-2 custom-card">
-              <p>date 1</p>
-              <i>icon</i>
-              <p>temp</p>
-              <p>wind</p>
-              <p>humidity</p>
-            </div>
-            
-            <div class="card m-2 custom-card">
-              <p>date 2</p>
-              <i>icon</i>
-              <p>temp</p>
-              <p>wind</p>
-              <p>humidity</p>
-            </div>
-            
-            <div class="card m-2 custom-card">
-              <p>date 3</p>
-              <i>icon</i>
-              <p>temp</p>
-              <p>wind</p>
-              <p>humidity</p>
-            </div>
-            
-            <div class="card m-2 custom-card">
-              <p>date 4</p>
-              <i>icon</i>
-              <p>temp</p>
-              <p>wind</p>
-              <p>humidity</p>
-            </div>
-            
-            <div class="card m-2 custom-card">
-              <p>date 5</p>
-              <i>icon</i>
-              <p>temp</p>
-              <p>wind</p>
-              <p>humidity</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div id="city-info" class="d-flex flex-column col-9 px-3 container-weather"></div>
     </section>
   </main>
 

@@ -1,7 +1,10 @@
 :root {
-  --header-bg-color: lightblue;
-
+  --header-bg-color: rgb(52, 204, 255);
+  --header-bg-dark: rgb(0, 152, 203);
+  --card-header-bg-dark: gray;
   --text-white: white;
+
+  --bg-dark: black;
 }
 
 header {
@@ -17,16 +20,50 @@ ul > a {
   text-decoration: none;
 }
 
-.container-search {
+.custom-body {
+  background-color: var(--text-white);
+}
+
+/* .container-search {
   background-color: darkorchid;
 }
 
 .container-weather {
   background-color: red;
-}
+} */
 
 
 .custom-card {
   width: 20%;
   height: auto;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .custom-body {
+    background-color: var(--bg-dark);
+  }
+
+  .container-search,
+  .container-weather {
+    background-color: var(--bg-dark);
+  }
+
+  .container-search h2,
+  .container-weather h2,
+  .container-weather h3 {
+    color: var(--text-white);
+  }
+
+  .container-weather .card {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    border: 2px solid var(--text-white);
+    padding: 0;
+  }
+
+  .container-weather .card-header {
+    background-color: var(--card-header-bg-dark);
+    color: var(--text-white);
+  }
 }
