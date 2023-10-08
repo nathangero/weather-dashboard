@@ -12,13 +12,13 @@
   <title>Weather Dashboard</title>
 </head>
 <body class="vh-100 custom-body">
-  <header class="p-3">
+  <header class="text-center p-3">
     <h1>Weather Dashboard</h1>
   </header>
 
   <main>
-    <section class="d-flex">
-      <div class="d-flex flex-column col-3 pt-2 container-search">
+    <section class="custom-section">
+      <div class="d-flex flex-column pt-2 container-search">
         <h2 class="text-center">Search for a City:</h2>
         <form class="d-flex flex-column align-items-center">
           <input id="city-name" class="form-control w-75 p-2" placeholder="City">
@@ -30,7 +30,7 @@
         <ul id="search-history" class="d-flex flex-column align-items-center p-0"></ul>
       </div>
 
-      <div id="city-info" class="d-flex flex-column col-9 px-3 container-weather"></div>
+      <div id="city-info" class="d-flex flex-column px-3 container-weather"></div>
     </section>
   </main>
 
