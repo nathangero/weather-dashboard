@@ -86,7 +86,7 @@ async function getWeather(cityName) {
     // If all checks pass, then show the user the weather
 
     // Prevent duplicates
-    if (!savedCities.has(cityName)) {
+    if (!savedCities.has(cityName.toLowerCase())) {
         displaySearchedCity(cityName);
         let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
         localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
@@ -179,11 +179,11 @@ function displayWeatherForecast(weatherForecast) {
 
     var dateTracker = dayjs().format("DD");
 
-    var forecast = $('<div id="forecast" class="d-flex flex-column">')
+    var forecast = $('<div>').attr("id", "forecast");
     var h3El = $("<br><h3>5-Day Forecast:</h3>")
     forecast.append(h3El);
 
-    var cardContainer = $('<div class="d-flex text-start">')
+    var cardContainer = $('<div>').addClass("container-forecast");
 
     for (let i = 0; i < weatherForecast.list.length; i++) { // Skip first weather because it's current date
         let weatherInfo = getWeatherInfo(weatherForecast.list[i]);
@@ -199,7 +199,7 @@ function displayWeatherForecast(weatherForecast) {
         if (hour <= PEAK_TEMP_HOUR_MAX && hour >= PEAK_TEMP_HOUR_MIN) {
             // console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
 
-            var card = $('<div>').addClass("card m-2 custom-card");
+            var card = $('<div>').addClass("card mb-3 custom-card");
             var cardHeader = $(`<h2>`).addClass("card-header");
             cardHeader.html(dayObj.format("ddd DD"));
         
