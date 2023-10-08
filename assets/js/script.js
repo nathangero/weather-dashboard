@@ -140,7 +140,7 @@ function displaySearchedCity(cityName) {
     deleteButton.on("click", handleRemoveHistory);
 
     var city = $("<button>");
-    city.addClass("btn btn-secondary text-capitalize")
+    city.addClass("btn btn-secondary text-capitalize button-load-city")
     city.text(cityName);
     city.on("click", handleHistorySearch)
 
