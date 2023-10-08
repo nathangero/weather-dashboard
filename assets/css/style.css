@@ -43,6 +43,16 @@ ul > a {
   margin: 0;
 }
 
+.button-load-city {
+  max-width: 80%;
+}
+
+.custom-close {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
 #forecast {
   display: flex;
   flex-direction: column;
@@ -63,6 +73,10 @@ ul > a {
 
   .container-search {
     width: 25%;
+  }
+
+  .button-load-city {
+    max-width: 65%;
   }
 }
 
