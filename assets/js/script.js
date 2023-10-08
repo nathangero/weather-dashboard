@@ -1,13 +1,19 @@
 import { API_KEY, API_CALL_FORECAST, API_CALL_GEOCODE, API_CALL_ICON, API_CALL_WEATHER } from "./api.js";
 
-const FORECAST_COUNT = 5;
+const STORAGE_SAVED_CITIES = "savedCities";
+var savedCities = new Set();
 var units = "imperial"; // Allow user to change?
 
 $(function() {
+    handleLoadStorage();
     $("#button-search").on("click", handleSearch);
 });
 
 
+/**
+ * Handles getting the weather from the user's input.
+ * @param {Event} event 
+ */
 function handleSearch(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -15,13 +21,46 @@ function handleSearch(event) {
     let inputEl = $("#city-name");
     let cityName = inputEl.val();
 
-    if (cityName) {
+    if (cityName.toLowerCase()) {
         getWeather(cityName);
     } else {
         alert("Please enter a city name");
     }
 }
 
+/**
+ * Handles loading the weather from the button clicked from the history.
+ * Gets the value from the button clicked and runs getWeather().
+ * @param {Event} event 
+ */
+function handleHistorySearch(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    let element = $(event.target);
+    let cityName = element.text();
+
+    if (cityName) {
+        getWeather(cityName);
+    } else {
+        alert("Couldn't load from history");
+    }
+}
+
+/**
+ * Handles loading the saved cities from the local storage.
+ * Reads any saved cities from local storage and puts them out to the search history.
+ */
+function handleLoadStorage() {
+    let storedCities = JSON.parse(localStorage.getItem(STORAGE_SAVED_CITIES));
+
+    if (storedCities) {
+        storedCities.forEach((city) => {
+            displaySearchedCity(city);
+            savedCities.add(city); // Add to global variable to prevent duplicates
+        })
+    }
+}
 
 
 /**
@@ -42,9 +81,46 @@ async function getWeather(cityName) {
 
     let weatherForecast = await fetchForecast(lat, lon);
 
+    if (!weatherForecast) return; // Guard check
+
+    // If all checks pass, then show the user the weather
+
+    // Prevent duplicates
+    if (!savedCities.has(cityName)) {
+        displaySearchedCity(cityName);
+        let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
+        localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
+    }
+    
     displayWeatherToday(weatherToday, cityName);
     displayWeatherForecast(weatherForecast);
+
+    $("#city-name").val(""); // Delete input value after all weather has loaded
 }
+
+/**
+ * Display the city the user searched on the left side of the screen.
+ * @param {String} cityName 
+ */
+function displaySearchedCity(cityName) {
+    var searchHistory = $("#search-history");
+
+    var item = $("<li>")
+    item.addClass("card w-75 bg-secondary p-1 mb-3")
+
+    var city = $("<button>");
+    city.addClass("btn btn-secondary text-capitalize")
+    city.text(cityName);
+    city.on("click", handleHistorySearch)
+
+    item.append(city);
+    searchHistory.append(item);
+    
+    // Save in all lowercase to make checking easier
+    savedCities.add(cityName.toLowerCase());
+}
+
+
 
 /**
  * Pull out the wanted info from the api json
@@ -73,7 +149,7 @@ function displayWeatherToday(weatherToday, cityName) {
 
     var card = $('<div>').addClass("card p-2 mt-2");
 
-    var cardHeader = $(`<h2>`).addClass("card-header");
+    var cardHeader = $(`<h2>`).addClass("card-header text-capitalize");
     cardHeader.html(`${cityName} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
 
     var cardBody = $("<div>").addClass("card-body");
@@ -102,7 +178,6 @@ function displayWeatherForecast(weatherForecast) {
     const PEAK_TEMP_HOUR_MAX = 16;
 
     var dateTracker = dayjs().format("DD");
-    console.log("dateTracker:", dateTracker);
 
     var forecast = $('<div id="forecast" class="d-flex flex-column">')
     var h3El = $("<br><h3>5-Day Forecast:</h3>")
@@ -110,7 +185,6 @@ function displayWeatherForecast(weatherForecast) {
 
     var cardContainer = $('<div class="d-flex text-start">')
 
-    console.log("weatherForecast.list.length:", weatherForecast.list.length)
     for (let i = 0; i < weatherForecast.list.length; i++) { // Skip first weather because it's current date
         let weatherInfo = getWeatherInfo(weatherForecast.list[i]);
         let dayObj = dayjs(weatherInfo.timestamp);
@@ -123,7 +197,7 @@ function displayWeatherForecast(weatherForecast) {
         }
 
         if (hour <= PEAK_TEMP_HOUR_MAX && hour >= PEAK_TEMP_HOUR_MIN) {
-            console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
+            // console.log("found highest temperature for", dayObj.format("ddd MMM DD HH:mm:ss"), "\nMake new card");
 
             var card = $('<div>').addClass("card m-2 custom-card");
             var cardHeader = $(`<h2>`).addClass("card-header");
@@ -228,7 +302,7 @@ async function fetchWeather(lat, lon) {
  */
 async function fetchForecast(lat, lon) {
     let requestURL = buildForecastUrl(lat, lon);
-    console.log("buildForecastUrl:", requestURL);
+    // console.log("buildForecastUrl:", requestURL);
 
     let options = {
         method: "GET",
@@ -257,7 +331,17 @@ async function fetchForecast(lat, lon) {
  */
 function buildGeocodeUrl(cityName) {
     const QUERY_LIMIT = 1;
-    let cityNameNoSpace = cityName.replace(/\s/g,''); // remove ALL whitespace
+
+    let cityNameNoSpace = "";
+    let split = cityName.split(",")
+
+    for (let i = 0; i < split.length; i++) {
+        // First trim leading/trailing whitespace, if there's middle white space then replace with a +
+        cityNameNoSpace += split[i].trim().replace(" ", "+");
+
+        // Add commas to all except the last of the string
+        if (i < split.length - 1) cityNameNoSpace += ",";
+    }
 
     return `${API_CALL_GEOCODE}${cityNameNoSpace}&limit=${QUERY_LIMIT}&appid=${API_KEY}`;
 }
