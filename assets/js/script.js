@@ -5,11 +5,15 @@ var savedCities = new Set();
 var units = "imperial"; // Allow user to change?
 
 $(function() {
+    handleLoadStorage();
     $("#button-search").on("click", handleSearch);
 });
 
 
-
+/**
+ * Handles getting the weather from the user's input.
+ * @param {Event} event 
+ */
 function handleSearch(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -24,7 +28,11 @@ function handleSearch(event) {
     }
 }
 
-
+/**
+ * Handles loading the weather from the button clicked from the history.
+ * Gets the value from the button clicked and runs getWeather().
+ * @param {Event} event 
+ */
 function handleHistorySearch(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -36,6 +44,21 @@ function handleHistorySearch(event) {
         getWeather(cityName);
     } else {
         alert("Couldn't load from history");
+    }
+}
+
+/**
+ * Handles loading the saved cities from the local storage.
+ * Reads any saved cities from local storage and puts them out to the search history.
+ */
+function handleLoadStorage() {
+    let storedCities = JSON.parse(localStorage.getItem(STORAGE_SAVED_CITIES));
+
+    if (storedCities) {
+        storedCities.forEach((city) => {
+            displaySearchedCity(city);
+            savedCities.add(city); // Add to global variable to prevent duplicates
+        })
     }
 }
 
@@ -65,6 +88,8 @@ async function getWeather(cityName) {
     // Prevent duplicates
     if (!savedCities.has(cityName)) {
         displaySearchedCity(cityName);
+        let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
+        localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
     }
     
     displayWeatherToday(weatherToday, cityName);
@@ -73,6 +98,10 @@ async function getWeather(cityName) {
     $("#city-name").val(""); // Delete input value after all weather has loaded
 }
 
+/**
+ * Display the city the user searched on the left side of the screen.
+ * @param {String} cityName 
+ */
 function displaySearchedCity(cityName) {
     var searchHistory = $("#search-history");
 
@@ -89,8 +118,8 @@ function displaySearchedCity(cityName) {
     
     // Save in all lowercase to make checking easier
     savedCities.add(cityName.toLowerCase());
-    // localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(savedCities))
 }
+
 
 
 /**
