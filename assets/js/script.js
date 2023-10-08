@@ -147,7 +147,7 @@ function displayWeatherToday(weatherToday, cityName) {
     let date = dayjs(weatherInfo.timestamp).format("ddd MMM DD, YYYY")
     $("#city-info").html("")
 
-    var card = $('<div>').addClass("card p-2 mt-2");
+    var card = $('<div>').addClass("card p-0 mt-2");
 
     var cardHeader = $(`<h2>`).addClass("card-header text-capitalize");
     cardHeader.html(`${cityName} (${date}) <img src=${buildWeatherIcon(weatherInfo.icon)}>`);
