@@ -43,6 +43,12 @@ ul > a {
   margin: 0;
 }
 
+.custom-close {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
 #forecast {
   display: flex;
   flex-direction: column;

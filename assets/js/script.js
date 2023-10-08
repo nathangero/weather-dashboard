@@ -47,6 +47,28 @@ function handleHistorySearch(event) {
     }
 }
 
+
+function handleRemoveHistory(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    let element = $(event.target);
+    let cityName = element.siblings().first().text();
+    // console.log("cityName:", cityName)
+
+    if (cityName) {
+        savedCities.delete(cityName.toLowerCase());
+        $("#search-history").text("");
+        saveHistory()
+
+        savedCities.forEach((city) => {
+            displaySearchedCity(city)
+        })
+    } else {
+        alert("Couldn't delete from history");
+    }
+}
+
 /**
  * Handles loading the saved cities from the local storage.
  * Reads any saved cities from local storage and puts them out to the search history.
@@ -60,6 +82,12 @@ function handleLoadStorage() {
             savedCities.add(city); // Add to global variable to prevent duplicates
         })
     }
+}
+
+
+function saveHistory() {
+    let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
+    localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
 }
 
 
@@ -88,8 +116,7 @@ async function getWeather(cityName) {
     // Prevent duplicates
     if (!savedCities.has(cityName.toLowerCase())) {
         displaySearchedCity(cityName);
-        let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
-        localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
+        saveHistory()
     }
     
     displayWeatherToday(weatherToday, cityName);
@@ -106,14 +133,18 @@ function displaySearchedCity(cityName) {
     var searchHistory = $("#search-history");
 
     var item = $("<li>")
-    item.addClass("card w-75 bg-secondary p-1 mb-3")
+    item.addClass("card d-flex flex-row justify-content-center w-75 bg-secondary p-1 mb-3")
+
+    var deleteButton = $("<button>");
+    deleteButton.addClass("btn-close custom-close");
+    deleteButton.on("click", handleRemoveHistory);
 
     var city = $("<button>");
     city.addClass("btn btn-secondary text-capitalize")
     city.text(cityName);
     city.on("click", handleHistorySearch)
 
-    item.append(city);
+    item.append(city, deleteButton);
     searchHistory.append(item);
     
     // Save in all lowercase to make checking easier
