@@ -7,6 +7,7 @@ Link to deployment is here: [https://nathangero.github.io/weather-dashboard/](ht
 ## Learning Points
 * ```JQuery.html()``` and ```JQuery.text()``` will replace each other. Meaning only one can be used at a time.
 * ```<img src="url-to-photo.png">``` is how to show pictures from the internet
+* Cannot save ```Set()``` in local storage, so I had to convert it to an Array first.
 
 ## Credits
 

@@ -47,7 +47,10 @@ function handleHistorySearch(event) {
     }
 }
 
-
+/**
+ * Removes the city from the local storage and reflects change on webpage.
+ * @param {Event} event 
+ */
 function handleRemoveHistory(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -84,7 +87,10 @@ function handleLoadStorage() {
     }
 }
 
-
+/**
+ * Save searched cities in local storage.
+ * Convert Set to an Array in order to save in local storage
+ */
 function saveHistory() {
     let convertToArray = Array.from(savedCities) // Convert set to an array to save in local storage
     localStorage.setItem(STORAGE_SAVED_CITIES, JSON.stringify(convertToArray))
@@ -125,6 +131,59 @@ async function getWeather(cityName) {
     $("#city-name").val(""); // Delete input value after all weather has loaded
 }
 
+
+/**
+ * Gets the latitude and longitude from the city name. Necessary for fetching the resetof Open Weather's data
+ * @param {String} cityName 
+ * @returns 
+ */
+async function getCityLatLon(cityName) {
+    let requestURL = buildGeocodeUrl(cityName);
+    // console.log("buildGeocodeUrl:", requestURL)
+
+    let options = {
+        method: "GET",
+        mode: "cors",
+        cache: "default",
+        credentials: "same-origin",
+    }
+
+    let response = await fetch(requestURL, options)
+    // console.log("response:", response)
+
+    let data = await response.json();
+    // console.log("data:", data)
+
+    if (!response.ok || data.length <= 0) {
+        alert("Couldn't get city coordinates.\n\nPlease try including either just \"city name\" or \"city name, state (USA only), country code\"")
+        return
+    }
+
+    let lat = data[0].lat;
+    let lon = data[0].lon;
+
+    return {
+        lat: lat,
+        lon: lon
+    }
+}
+
+
+/**
+ * Pull out the wanted info from the api json
+ * @param {Object} weatherJson JSON containing the results from Open Weather
+ * @returns Object containing the info to show the user
+ */
+function getWeatherInfo(weatherJson) {
+    return {
+        timestamp: (weatherJson.dt) * 1000, // Add miliseconds
+        icon: weatherJson.weather[0].icon,
+        temperature: Math.round(weatherJson.main.temp),
+        wind: Math.round(weatherJson.wind.speed),
+        humidity: weatherJson.main.humidity
+    }
+}
+
 /**
  * Display the city the user searched on the left side of the screen.
  * @param {String} cityName 
@@ -149,23 +208,6 @@ function displaySearchedCity(cityName) {
     
     // Save in all lowercase to make checking easier
     savedCities.add(cityName.toLowerCase());
-}
-
-
-
-/**
- * Pull out the wanted info from the api json
- * @param {Object} weatherJson JSON containing the results from Open Weather
- * @returns Object containing the info to show the user
- */
-function getWeatherInfo(weatherJson) {
-    return {
-        timestamp: (weatherJson.dt) * 1000, // Add miliseconds
-        icon: weatherJson.weather[0].icon,
-        temperature: Math.round(weatherJson.main.temp),
-        wind: Math.round(weatherJson.wind.speed),
-        humidity: weatherJson.main.humidity
-    }
 }
 
 /**
@@ -260,42 +302,6 @@ function displayWeatherForecast(weatherForecast) {
     $("#city-info").append(forecast);
 }
 
-
-/**
- * Gets the latitude and longitude from the city name. Necessary for fetching the resetof Open Weather's data
- * @param {String} cityName 
- * @returns 
- */
-async function getCityLatLon(cityName) {
-    let requestURL = buildGeocodeUrl(cityName);
-    // console.log("buildGeocodeUrl:", requestURL)
-
-    let options = {
-        method: "GET",
-        mode: "cors",
-        cache: "default",
-        credentials: "same-origin",
-    }
-
-    let response = await fetch(requestURL, options)
-    // console.log("response:", response)
-
-    let data = await response.json();
-    // console.log("data:", data)
-
-    if (!response.ok || data.length <= 0) {
-        alert("Couldn't get city coordinates.\n\nPlease try including either just \"city name\" or \"city name, state (USA only), country code\"")
-        return
-    }
-
-    let lat = data[0].lat;
-    let lon = data[0].lon;
-
-    return {
-        lat: lat,
-        lon: lon
-    }
-}
 
 /**
  * Gets the current day's weather via latitude and longitude
