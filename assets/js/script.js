@@ -331,7 +331,17 @@ async function fetchForecast(lat, lon) {
  */
 function buildGeocodeUrl(cityName) {
     const QUERY_LIMIT = 1;
-    let cityNameNoSpace = cityName.replace(/\s/g,''); // remove ALL whitespace
+
+    let cityNameNoSpace = "";
+    let split = cityName.split(",")
+
+    for (let i = 0; i < split.length; i++) {
+        // First trim leading/trailing whitespace, if there's middle white space then replace with a +
+        cityNameNoSpace += split[i].trim().replace(" ", "+");
+
+        // Add commas to all except the last of the string
+        if (i < split.length - 1) cityNameNoSpace += ",";
+    }
 
     return `${API_CALL_GEOCODE}${cityNameNoSpace}&limit=${QUERY_LIMIT}&appid=${API_KEY}`;
 }
