@@ -218,7 +218,7 @@ function displaySearchedCity(cityName) {
 function displayWeatherToday(weatherToday, cityName) {
     let weatherInfo = getWeatherInfo(weatherToday);
     let date = dayjs(weatherInfo.timestamp).format("ddd MMM DD, YYYY")
-    $("#city-info").html("")
+    $("#city-info").html("") // Remove any currently showing weather
 
     var card = $('<div>').addClass("card p-0 mt-2");
 
@@ -387,7 +387,7 @@ function buildGeocodeUrl(cityName) {
  * Creates the url for fetch
  * @param {Number} lat location's latitude
  * @param {Number} lon location's longitude
- * @returns String containing the api call
+ * @returns String containing the current day's weather API call
  */
 function buildWeatherUrl(lat, lon) {
     return `${API_CALL_WEATHER}lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=${units}`;
@@ -397,12 +397,17 @@ function buildWeatherUrl(lat, lon) {
  * Creates the url for fetch
  * @param {Number} lat location's latitude
  * @param {Number} lon location's longitude
- * @returns String containing the api call
+ * @returns String containing the forecast API call
  */
 function buildForecastUrl(lat, lon) {
     return `${API_CALL_FORECAST}lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=${units}`;
 }
 
+/**
+ * Creates the url for the weather icon
+ * @param {String} iconName 
+ * @returns String containing the icon API call
+ */
 function buildWeatherIcon(iconName) {
     return `${API_CALL_ICON}${iconName}.png`
 }
